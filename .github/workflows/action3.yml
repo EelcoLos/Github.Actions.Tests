@@ -23,8 +23,8 @@ jobs:
 
       - name: Output Run Numbers
         run: |
-          action1_run_number=$(cat action1-artifact/run_number)
-          action2_run_number=$(cat action2-artifact/run_number)
+          action1_run_number=$(cat action1-artifact/action1-run-number.txt)
+          action2_run_number=$(cat action2-artifact/action2-run-number.txt)
 
           echo "The run number of Action 1 is $action1_run_number"
           echo "The run number of Action 2 is $action2_run_number"
