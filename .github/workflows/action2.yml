@@ -6,10 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Output Run Number
-        run: echo "The run number of Action 2 is ${{ github.run_number }}"
+        run: |
+          echo "The run number of Action 2 is ${{ github.run_number }}"
+          echo "${{ github.run_number }}" > action2-run-number.txt
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: action2-run-number
-          path: .
+          path: action2-run-number.txt
