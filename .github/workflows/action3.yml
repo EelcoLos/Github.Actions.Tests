@@ -13,11 +13,11 @@ jobs:
         id: retrieve
         run: |
           action1_run_number=$(curl -s -X GET -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/Action%201.yml/runs?per_page=1" | \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/action1.yml/runs?per_page=1" | \
             jq -r '.workflow_runs[0].run_number')
             
           action2_run_number=$(curl -s -X GET -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/Action%202.yml/runs?per_page=1" | \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/action2.yml/runs?per_page=1" | \
             jq -r '.workflow_runs[0].run_number')
             
           echo "::set-output name=action1_run_number::$action1_run_number"
