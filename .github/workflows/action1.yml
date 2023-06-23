@@ -8,10 +8,10 @@ jobs:
       - name: Output Run Number
         run: |
           echo "The run number of Action 1 is ${{ github.run_number }}"
-          echo "${{ github.run_number }}" > action1-run-number.txt
+          echo "${{ github.run_number }}" > run-number.txt
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: action1-run-number
-          path: action1-run-number.txt
+          path: run-number.txt
