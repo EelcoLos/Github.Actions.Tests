@@ -6,52 +6,32 @@ on:
       - completed
 
 jobs:
-  dummy-job:
-    name: Dummy Job
+  retrieve-artifacts:
+    name: Retrieve Artifacts
     runs-on: ubuntu-latest
-    steps:
-      - name: Dummy Step
-        run: echo "This is a dummy job"
-
-  retrieve-action1-run-number:
-    name: Retrieve Action 1 Run Number
-    runs-on: ubuntu-latest
-    needs: [dummy-job]
+    outputs:
+      action1_run_number: ${{ steps.download_action1.outputs.run_number }}
+      action2_run_number: ${{ steps.download_action2.outputs.run_number }}
     steps:
       - name: Download Action 1 Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: action1-run-number
-          path: action1-artifact
-
-      - name: Output Action 1 Run Number
+        id: download_action1
         run: |
-          action1_run_number=$(cat action1-artifact/run-number.txt)
-          echo "::set-output name=action1_run_number::$action1_run_number"
+          run_number=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | jq -r '.artifacts[] | select(.name == "action1-run-number") | .run_number')
+          echo "::set-output name=run_number::$run_number"
 
-  retrieve-action2-run-number:
-    name: Retrieve Action 2 Run Number
-    runs-on: ubuntu-latest
-    needs: [dummy-job]
-    steps:
       - name: Download Action 2 Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: action2-run-number
-          path: action2-artifact
-
-      - name: Output Action 2 Run Number
+        id: download_action2
         run: |
-          action2_run_number=$(cat action2-artifact/run-number.txt)
-          echo "::set-output name=action2_run_number::$action2_run_number"
+          run_number=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" | jq -r '.artifacts[] | select(.name == "action2-run-number") | .run_number')
+          echo "::set-output name=run_number::$run_number"
 
   display-run-numbers:
     name: Display Run Numbers
     runs-on: ubuntu-latest
-    needs: [retrieve-action1-run-number, retrieve-action2-run-number]
+    needs: [retrieve-artifacts]
     steps:
       - name: Retrieve Action 1 Run Number
-        run: echo "The run number of Action 1 is ${{ needs.retrieve-action1-run-number.outputs.action1_run_number }}"
+        run: echo "The run number of Action 1 is ${{ needs.retrieve-artifacts.outputs.action1_run_number }}"
 
       - name: Retrieve Action 2 Run Number
-        run: echo "The run number of Action 2 is ${{ needs.retrieve-action2-run-number.outputs.action2_run_number }}"
+        run: echo "The run number of Action 2 is ${{ needs.retrieve-artifacts.outputs.action2_run_number }}"
