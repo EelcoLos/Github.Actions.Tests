@@ -19,8 +19,8 @@ jobs:
           response=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts")
           artifact_url=$(echo "$response" | jq -r '.artifacts[] | select(.name == "action1-run-number") | .archive_download_url')
           curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -L -o action1-artifact.zip "$artifact_url"
-          unzip -p action1-artifact.zip run_number.txt > action1-run-number.txt
-          run_number=$(cat action1-run-number.txt)
+          unzip -o action1-artifact.zip -d action1-run-number
+          run_number=$(cat action1-run-number/run_number.txt)
           echo "::set-output name=run_number::$run_number"
 
       - name: Download Action 2 Artifact
@@ -29,8 +29,8 @@ jobs:
           response=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts")
           artifact_url=$(echo "$response" | jq -r '.artifacts[] | select(.name == "action2-run-number") | .archive_download_url')
           curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -L -o action2-artifact.zip "$artifact_url"
-          unzip -p action2-artifact.zip run_number.txt > action2-run-number.txt
-          run_number=$(cat action2-run-number.txt)
+          unzip -o action2-artifact.zip -d action2-run-number
+          run_number=$(cat action2-run-number/run_number.txt)
           echo "::set-output name=run_number::$run_number"
 
   display-run-numbers:
