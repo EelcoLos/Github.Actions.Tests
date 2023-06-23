@@ -9,21 +9,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Retrieve Run Numbers
-        id: retrieve
-        run: |
-          action1_run_number=$(curl -s -X GET -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/action1.yml/runs?per_page=1" | \
-            jq -r '.workflow_runs[0].run_number')
-            
-          action2_run_number=$(curl -s -X GET -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/action2.yml/runs?per_page=1" | \
-            jq -r '.workflow_runs[0].run_number')
-            
-          echo "::set-output name=action1_run_number::$action1_run_number"
-          echo "::set-output name=action2_run_number::$action2_run_number"
+      - name: Download Action 1 Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: action1-run-number
+          path: action1-artifact
+
+      - name: Download Action 2 Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: action2-run-number
+          path: action2-artifact
 
       - name: Output Run Numbers
         run: |
-          echo "The run number of Action 1 is ${{ steps.retrieve.outputs.action1_run_number }}"
-          echo "The run number of Action 2 is ${{ steps.retrieve.outputs.action2_run_number }}"
+          action1_run_number=$(cat action1-artifact/run_number)
+          action2_run_number=$(cat action2-artifact/run_number)
+
+          echo "The run number of Action 1 is $action1_run_number"
+          echo "The run number of Action 2 is $action2_run_number"

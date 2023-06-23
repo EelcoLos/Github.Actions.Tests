@@ -5,5 +5,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Output Run Number
-      run: echo "The run number of Action 1 is ${{ github.run_number }}"
+      - name: Output Run Number
+        run: echo "The run number of Action 1 is ${{ github.run_number }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: action1-run-number
+          path: .
