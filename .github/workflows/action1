@@ -1,0 +1,9 @@
+name: Action 1
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Output Run Number
+      run: echo "The run number of Action 1 is ${{ github.run_number }}"
