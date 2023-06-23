@@ -1,0 +1,15 @@
+name: Action 3
+on:
+  workflow_run:
+    workflows: ["Action 1", "Action 2"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Output Run Numbers
+      run: |
+        echo "The run number of Action 1 is ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.workflow.name == 'Action 1' && github.event.workflow_run.head_branch == github.ref ? github.event.workflow_run.run_number : 'N/A' }}"
+        echo "The run number of Action 2 is ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.workflow.name == 'Action 2' && github.event.workflow_run.head_branch == github.ref ? github.event.workflow_run.run_number : 'N/A' }}"
