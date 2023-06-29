@@ -6,6 +6,16 @@ on:
       - completed
 
 jobs:
+  trigger-action2-check:
+    name: Trigger Action 2 Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Artifact
+        id: check_artifact
+        run: |
+          response=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts")
+          artifact_exists=$(echo "$response" | jq -r '.artifacts | map(select(.name == "test-artifact")) | length')
+          echo "::set-output name=artifact_exists::$artifact_exists"
   build:
     runs-on: ubuntu-latest
     steps:
@@ -27,3 +37,11 @@ jobs:
         run: |
           echo "The run number of Action 1 is ${{ steps.retrieve.outputs.action1_run_number }}"
           echo "The run number of Action 2 is ${{ steps.retrieve.outputs.action2_run_number }}"
+      - name: Check Artifact Availability
+      run: |
+        artifact_exists=${{ needs.trigger-action2-check.outputs.artifact_exists }}
+        if [[ $artifact_exists -eq 1 ]]; then
+          echo "Artifact from Action 2 is available."
+        else
+          echo "Artifact from Action 2 is not available."
+        fi

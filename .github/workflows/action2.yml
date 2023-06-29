@@ -1,9 +1,18 @@
 name: Action 2
-on: [push]
+on:
+  push:
+    paths:
+      - "file/test.txt"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Output Run Number
-      run: echo "The run number of Action 2 is ${{ github.run_number }}"
+      - name: Output Run Number
+        run: echo "The run number of Action 2 is ${{ github.run_number }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-artifact
+          path: file/test.txt
