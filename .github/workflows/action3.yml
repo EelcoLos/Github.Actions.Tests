@@ -9,6 +9,8 @@ jobs:
   trigger-action2-check:
     name: Trigger Action 2 Check
     runs-on: ubuntu-latest
+    outputs:
+      artifact_exist: ${{ steps.check_artifact.outputs.artifact_exists }}
     steps:
       - name: Check Artifact
         id: check_artifact
@@ -16,9 +18,13 @@ jobs:
           response=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts")
           artifact_exists=$(echo "$response" | jq -r '.artifacts | map(select(.name == "test-artifact")) | length')
           echo "::set-output name=artifact_exists::$artifact_exists"
-  build:
+
+  get-runnumbers:
+    name: Get action run numbers
     runs-on: ubuntu-latest
-    needs: [trigger-action2-check]
+    outputs:
+      action1_runnumber: ${{steps.retrieve.outputs.action1_run_number }}
+      action2_runnumber: ${{steps.retrieve.outputs.action2_run_number }}
     steps:
       - name: Retrieve Run Numbers
         id: retrieve
@@ -34,13 +40,17 @@ jobs:
           echo "::set-output name=action1_run_number::$action1_run_number"
           echo "::set-output name=action2_run_number::$action2_run_number"
 
+  build:
+    runs-on: ubuntu-latest
+    needs: [trigger-action2-check, get-runnumbers]
+    steps:
       - name: Output Run Numbers
         run: |
-          echo "The run number of Action 1 is ${{ steps.retrieve.outputs.action1_run_number }}"
-          echo "The run number of Action 2 is ${{ steps.retrieve.outputs.action2_run_number }}"
+          echo "The run number of Action 1 is ${{ needs.get-runnumbers.outputs.action1_runnumber }}"
+          echo "The run number of Action 2 is ${{ needs.get-runnumbers.outputs.action2_runnumber }}"
       - name: Check Artifact Availability
         run: |
-          artifact_exists=${{ needs.trigger-action2-check.outputs.artifact_exists }}
+          artifact_exists=${{ needs.trigger-action2-check.outputs.artifact_exist }}
           if [[ $artifact_exists -eq 1 ]]; then
             echo "Artifact from Action 2 is available."
           else
